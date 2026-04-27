@@ -13,6 +13,8 @@ const serverEnvSchema = z.object({
   LOCALE: localeSchema.catch("zh"),
   GITHUB_CLIENT_ID: z.string(),
   GITHUB_CLIENT_SECRET: z.string(),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
   CLOUDFLARE_ZONE_ID: z.string(),
   CLOUDFLARE_PURGE_API_TOKEN: z.string(),
   DOMAIN: domainSchema,

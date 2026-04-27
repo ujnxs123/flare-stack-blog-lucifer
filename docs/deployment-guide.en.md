@@ -100,9 +100,11 @@ In your GitHub repository, go to Settings -> Secrets and variables -> Actions, c
 **B. Required Runtime Configuration (Secrets - Runtime)**
 | Variable Name | Description |
 | :--- | :--- |
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
 | `BETTER_AUTH_SECRET` | Run `openssl rand -hex 32` in your terminal to generate this |
 | `BETTER_AUTH_URL` | Your app URL (e.g., `https://blog.example.com`) |
-| `ADMIN_EMAIL` | Admin email address |
+| `ADMIN_EMAIL` | Admin email address Bootstrap email for the unique superadmin account|
 | `GH_CLIENT_ID` | GitHub OAuth Client ID. The workflow maps this to runtime `GITHUB_CLIENT_ID` |
 | `GH_CLIENT_SECRET` | GitHub OAuth Client Secret. The workflow maps this to runtime `GITHUB_CLIENT_SECRET` |
 | `CLOUDFLARE_ZONE_ID` | Your Cloudflare Zone ID |

@@ -18,7 +18,12 @@ export function LoginPage({
     turnstilePending: formTurnstilePending,
   } = loginForm;
 
-  const { isLoading: socialIsLoading, handleGithubLogin } = socialLogin;
+  const {
+    isLoading: socialIsLoading,
+    activeProvider,
+    handleGithubLogin,
+    handleGoogleLogin,
+  } = socialLogin;
 
   const isFormDisabled =
     isSubmitting || loginStep !== "IDLE" || formTurnstilePending;
@@ -120,26 +125,47 @@ export function LoginPage({
         )}
 
         {/* Social Login */}
-        <button
-          type="button"
-          onClick={handleGithubLogin}
-          disabled={isSocialDisabled}
-          className={`group w-full py-3.5 rounded-xl flex gap-3 transition-all font-bold text-sm active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 ${
-            !isEmailConfigured ? "fuwari-btn-primary" : "fuwari-btn-regular"
-          }`}
-        >
-          {socialIsLoading ? (
-            <Loader2 size={16} className="animate-spin opacity-70" />
-          ) : (
-            <Github size={16} />
-          )}
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={handleGithubLogin}
+            disabled={isSocialDisabled}
+            className={`group w-full py-3.5 rounded-xl flex gap-3 transition-all font-bold text-sm active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 ${
+              !isEmailConfigured ? "fuwari-btn-primary" : "fuwari-btn-regular"
+            }`}
+          >
+            {socialIsLoading && activeProvider === "github" ? (
+              <Loader2 size={16} className="animate-spin opacity-70" />
+            ) : (
+              <Github size={16} />
+            )}
 
-          <span className="tracking-wide">
-            {socialIsLoading
-              ? m.login_social_connecting()
-              : m.login_github_fuwari()}
-          </span>
-        </button>
+            <span className="tracking-wide">
+              {socialIsLoading && activeProvider === "github"
+                ? m.login_social_connecting()
+                : m.login_github_fuwari()}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={isSocialDisabled}
+            className="group w-full py-3.5 rounded-xl flex gap-3 transition-all font-bold text-sm active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 fuwari-btn-regular"
+          >
+            {socialIsLoading && activeProvider === "google" ? (
+              <Loader2 size={16} className="animate-spin opacity-70" />
+            ) : (
+              <span className="text-xs font-mono">G</span>
+            )}
+
+            <span className="tracking-wide">
+              {socialIsLoading && activeProvider === "google"
+                ? m.login_social_connecting()
+                : "Google"}
+            </span>
+          </button>
+        </div>
 
         {turnstileElement}
 

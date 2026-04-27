@@ -18,7 +18,9 @@ export interface LoginFormData {
 
 export interface SocialLoginData {
   isLoading: boolean;
+  activeProvider: "github" | "google" | null;
   handleGithubLogin: () => Promise<void>;
+  handleGoogleLogin: () => Promise<void>;
 }
 
 export interface LoginPageProps {

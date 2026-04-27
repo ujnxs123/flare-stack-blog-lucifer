@@ -14,6 +14,9 @@ export function useSocialLogin(options: UseSocialLoginOptions) {
   const { redirectTo } = options;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [activeProvider, setActiveProvider] = useState<"github" | "google" | null>(
+    null,
+  );
   const previousLocation = usePreviousLocation();
   const callbackURL = normalizeRedirectUrl(redirectTo, previousLocation);
 
@@ -21,6 +24,7 @@ export function useSocialLogin(options: UseSocialLoginOptions) {
     if (isLoading) return;
 
     setIsLoading(true);
+    setActiveProvider("github");
 
     const { error } = await authClient.signIn.social({
       provider: "github",
@@ -35,16 +39,47 @@ export function useSocialLogin(options: UseSocialLoginOptions) {
           m.auth_error_default_desc(),
       });
       setIsLoading(false);
+      setActiveProvider(null);
       return;
     }
 
     setIsLoading(false);
+    setActiveProvider(null);
+  };
+
+  const handleGoogleLogin = async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+    setActiveProvider("google");
+
+    const { error } = await authClient.signIn.social({
+      provider: "google",
+      errorCallbackURL: `${window.location.origin}/login`,
+      callbackURL,
+    });
+
+    if (error) {
+      toast.error(m.login_toast_social_failed(), {
+        description:
+          getSocialLoginAuthErrorMessage(error, m) ??
+          m.auth_error_default_desc(),
+      });
+      setIsLoading(false);
+      setActiveProvider(null);
+      return;
+    }
+
+    setIsLoading(false);
+    setActiveProvider(null);
   };
 
   return {
     isLoading,
+    activeProvider,
     turnstilePending: false,
     handleGithubLogin,
+    handleGoogleLogin,
   };
 }
 

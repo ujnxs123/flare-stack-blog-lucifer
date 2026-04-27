@@ -195,12 +195,14 @@ Flare Stack Blog 的所有面向用户的页面与布局均通过 **主题契约
 | `BUCKET_NAME`                | CI/CD  | R2 存储桶名称                                     |
 | `BETTER_AUTH_SECRET`         | 运行时 | 会话加密密钥，运行 `openssl rand -hex 32` 生成    |
 | `BETTER_AUTH_URL`            | 运行时 | 应用 URL（如 `https://blog.example.com`）         |
-| `ADMIN_EMAIL`                | 运行时 | 管理员邮箱                                        |
+| `ADMIN_EMAIL`                | 运行时 | 超级管理员邮箱箱                                        |
 | `GITHUB_CLIENT_ID`           | 运行时 | GitHub OAuth Client ID                            |
 | `GITHUB_CLIENT_SECRET`       | 运行时 | GitHub OAuth Client Secret                        |
 | `CLOUDFLARE_ZONE_ID`         | 运行时 | Cloudflare Zone ID                                |
 | `CLOUDFLARE_PURGE_API_TOKEN` | 运行时 | 具有 Purge CDN 权限的 API Token                   |
 | `DOMAIN`                     | 运行时 | 博客域名（如 `blog.example.com`）                 |
+GOOGLE_CLIENT_ID（可选，启用 Google OAuth 时需要）
+GOOGLE_CLIENT_SECRET（可选，启用 Google OAuth 时需要）
 
 ### 可选
 
