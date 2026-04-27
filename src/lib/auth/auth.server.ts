@@ -5,6 +5,7 @@ import { betterAuth } from "better-auth/minimal";
 import { renderToStaticMarkup } from "react-dom/server";
 import { AuthEmail } from "@/features/email/templates/AuthEmail";
 import { createAuthConfig } from "@/lib/auth/auth.config";
+import { SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 import * as authSchema from "@/lib/db/schema/auth.table";
 import { serverEnv } from "@/lib/env/server.env";
 import type { Locale } from "@/lib/i18n";
@@ -34,6 +35,8 @@ export function getAuth({ db, env }: { db: DB; env: Env }) {
     LOCALE,
     GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET,
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
   } = serverEnv(env);
 
   // 固定 10 个 DO 实例池，随机选择避免冷启动
@@ -59,6 +62,14 @@ export function getAuth({ db, env }: { db: DB; env: Env }) {
         clientId: GITHUB_CLIENT_ID,
         clientSecret: GITHUB_CLIENT_SECRET,
       },
+      ...(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET
+        ? {
+            google: {
+              clientId: GOOGLE_CLIENT_ID,
+              clientSecret: GOOGLE_CLIENT_SECRET,
+            },
+          }
+        : {}),
     },
     hooks: {
       before: createAuthMiddleware(async (ctx) => {
@@ -144,7 +155,7 @@ export function getAuth({ db, env }: { db: DB; env: Env }) {
         create: {
           before: async (user) => {
             if (user.email === ADMIN_EMAIL) {
-              return { data: { ...user, role: "admin" } };
+              return { data: { ...user, role: SUPER_ADMIN_ROLE } };
             }
             return { data: user };
           },

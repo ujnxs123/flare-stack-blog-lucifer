@@ -3,7 +3,10 @@ import {
   getRequestHeader,
   getRequestHeaders,
 } from "@tanstack/react-start/server";
+import { eq } from "drizzle-orm";
 import { getAuth } from "@/lib/auth/auth.server";
+import { SUPER_ADMIN_ROLE, isContentAdminRole, isSuperAdminRole } from "@/lib/auth/roles";
+import * as authSchema from "@/lib/db/schema/auth.table";
 import { getDb } from "@/lib/db";
 import type { RateLimitOptions } from "@/lib/do/rate-limiter";
 import { serverEnv } from "@/lib/env/server.env";
@@ -65,10 +68,32 @@ export const sessionMiddleware = createMiddleware({ type: "function" })
       headers: getRequestHeaders(),
     });
 
+    let normalizedSession = session;
+    const { ADMIN_EMAIL } = serverEnv(context.env);
+
+    // Ensure ADMIN_EMAIL is always treated as superadmin, even for existing users.
+    if (
+      session?.user.email === ADMIN_EMAIL &&
+      !isSuperAdminRole(session.user.role)
+    ) {
+      await context.db
+        .update(authSchema.user)
+        .set({ role: SUPER_ADMIN_ROLE })
+        .where(eq(authSchema.user.id, session.user.id));
+
+      normalizedSession = {
+        ...session,
+        user: {
+          ...session.user,
+          role: SUPER_ADMIN_ROLE,
+        },
+      };
+    }
+
     return next({
       context: {
         auth,
-        session,
+        session: normalizedSession,
       },
     });
   });
@@ -94,7 +119,23 @@ export const adminMiddleware = createMiddleware({ type: "function" })
   .server(async ({ context, next }) => {
     const session = context.session;
 
-    if (session.user.role !== "admin") {
+    if (!isSuperAdminRole(session.user.role)) {
+      throw createPermissionError();
+    }
+
+    return next({
+      context: {
+        session,
+      },
+    });
+  });
+
+export const contentAdminMiddleware = createMiddleware({ type: "function" })
+  .middleware([authMiddleware])
+  .server(async ({ context, next }) => {
+    const session = context.session;
+
+    if (!isContentAdminRole(session.user.role)) {
       throw createPermissionError();
     }
 

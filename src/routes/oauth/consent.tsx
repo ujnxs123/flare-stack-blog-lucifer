@@ -30,6 +30,7 @@ import {
   OAUTH_MANAGED_SCOPES,
   resolveOAuthRequestedScopes,
 } from "@/features/oauth-provider/oauth-provider.shared";
+import { isContentAdminRole } from "@/lib/auth/roles";
 import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 
@@ -53,7 +54,7 @@ export const Route = createFileRoute("/oauth/consent")({
       });
     }
 
-    if (session.user.role !== "admin") {
+    if (!isContentAdminRole(session.user.role)) {
       throw redirect({ to: "/" });
     }
 

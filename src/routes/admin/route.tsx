@@ -10,6 +10,7 @@ import { SideBar } from "@/components/admin/side-bar";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import Toaster from "@/components/ui/toaster";
 import { sessionQuery } from "@/features/auth/queries";
+import { isContentAdminRole, isSuperAdminRole } from "@/lib/auth/roles";
 import { CACHE_CONTROL } from "@/lib/constants";
 import { m } from "@/paraglide/messages";
 // 管理后台固定使用 default 主题样式，不随 THEME 变量切换
@@ -17,14 +18,23 @@ import "@/features/theme/themes/default/styles/index.css";
 import "@/styles/admin.css";
 
 export const Route = createFileRoute("/admin")({
-  beforeLoad: async ({ context }) => {
+  beforeLoad: async ({ context, location }) => {
     const session = await context.queryClient.ensureQueryData(sessionQuery);
 
     if (!session) {
       throw redirect({ to: "/login" });
     }
-    if (session.user.role !== "admin") {
+    if (!isContentAdminRole(session.user.role)) {
       throw redirect({ to: "/" });
+    }
+
+    if (
+      !isSuperAdminRole(session.user.role) &&
+      !location.pathname.startsWith("/admin/posts") &&
+      !location.pathname.startsWith("/admin/tags") &&
+      !location.pathname.startsWith("/admin/media")
+    ) {
+      throw redirect({ to: "/admin/posts" });
     }
 
     return { session };

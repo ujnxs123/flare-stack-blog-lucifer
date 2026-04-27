@@ -9,6 +9,7 @@ import {
   MessageSquare,
   Tag,
   User,
+  Users,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -17,6 +18,7 @@ import { ThemeToggle } from "@/components/common/theme-toggle";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { AUTH_KEYS } from "@/features/auth/queries";
 import { authClient } from "@/lib/auth/auth.client";
+import { isSuperAdminRole } from "@/lib/auth/roles";
 import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import type { FileRoutesByTo } from "@/routeTree.gen";
@@ -42,6 +44,7 @@ export function SideBar({
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const isSuperAdmin = isSuperAdminRole(user?.role);
 
   const handleSignOutClick = () => {
     setShowLogoutConfirm(true);
@@ -66,7 +69,7 @@ export function SideBar({
     navigate({ to: "/login" });
   };
 
-  const navItems = [
+  const allNavItems = [
     {
       path: "/admin",
       icon: LayoutDashboard,
@@ -103,7 +106,18 @@ export function SideBar({
       label: m.admin_sidebar_friend_links(),
       exact: false,
     },
+    {
+      path: "/admin/users",
+      icon: Users,
+      label: "用户管理",
+      exact: false,
+    },
   ] satisfies Array<NavItem>;
+
+  const contentNavItems = allNavItems.filter((item) =>
+    ["/admin/posts", "/admin/tags", "/admin/media"].includes(item.path),
+  );
+  const navItems = isSuperAdmin ? allNavItems : contentNavItems;
 
   return (
     <>
@@ -199,7 +213,9 @@ export function SideBar({
                   {user?.name || m.admin_sidebar_admin_fallback()}
                 </span>
                 <span className="text-[8px] text-muted-foreground font-mono">
-                  {user?.role === "admin"
+                  {isSuperAdmin
+                    ? "SUPERADMIN"
+                    : user?.role === "admin"
                     ? m.admin_sidebar_role_admin()
                     : m.admin_sidebar_role_user()}
                 </span>

@@ -56,6 +56,7 @@
     "@tanstack/react-router-devtools": "^1.132.0",
     "@tanstack/react-router-ssr-query": "^1.141.2",
     "@tanstack/react-start": "^1.141.3",
+    "@tanstack/react-virtual": "^3.13.24",
     "@tanstack/router-plugin": "^1.141.2",
     "@tiptap/core": "^3.20.0",
     "@tiptap/extension-blockquote": "^3.20.0",

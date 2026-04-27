@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { IMPORT_EXPORT_R2_KEYS } from "@/features/import-export/import-export.schema";
 import { getAuth } from "@/lib/auth/auth.server";
+import { isSuperAdminRole } from "@/lib/auth/roles";
 import { getDb } from "@/lib/db";
-import { serverEnv } from "@/lib/env/server.env";
 
 export const exportDownloadRoute = new Hono<{ Bindings: Env }>();
 
@@ -17,8 +17,7 @@ exportDownloadRoute.use("*", async (c, next) => {
     return c.text("Unauthorized", 401);
   }
 
-  const env = serverEnv(c.env);
-  if (session.user.email !== env.ADMIN_EMAIL) {
+  if (!isSuperAdminRole(session.user.role)) {
     return c.text("Forbidden", 403);
   }
 
