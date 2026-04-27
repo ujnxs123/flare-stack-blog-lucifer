@@ -1,8 +1,12 @@
 import { ClientOnly } from "@tanstack/react-router";
 import { memo, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import type { CommentWithUser } from "@/features/comments/comments.schema";
+import type {
+  CommentReactionName,
+  CommentWithUser,
+} from "@/features/comments/comments.schema";
 import { authClient } from "@/lib/auth/auth.client";
+import { isContentAdminRole } from "@/lib/auth/roles";
 import { cn, formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import { ExpandableContent } from "./expandable-content";
@@ -11,6 +15,7 @@ interface CommentItemProps {
   comment: CommentWithUser;
   onReply?: (rootId: number, commentId: number, userName: string) => void;
   onDelete?: (commentId: number) => void;
+  onReact?: (commentId: number, reaction: CommentReactionName) => void;
   isReply?: boolean;
   replyToName?: string | null;
   highlightCommentId?: number;
@@ -22,6 +27,7 @@ export const CommentItem = memo(
     comment,
     onReply,
     onDelete,
+    onReact,
     isReply,
     replyToName,
     highlightCommentId,
@@ -32,8 +38,8 @@ export const CommentItem = memo(
     const { data: session } = authClient.useSession();
 
     const isAuthor = session?.user.id === comment.userId;
-    const isAdmin = session?.user.role === "admin";
-    const isBlogger = comment.user?.role === "admin";
+    const isAdmin = isContentAdminRole(session?.user.role);
+    const isBlogger = isContentAdminRole(comment.user?.role);
 
     const renderedContent = useMemo(() => {
       if (comment.status === "deleted") {
@@ -99,6 +105,16 @@ export const CommentItem = memo(
                   {m.comments_item_blogger()}
                 </span>
               )}
+              {comment.isPinned && (
+                <span className="text-[9px] font-mono text-foreground/40 uppercase tracking-widest border border-border/30 px-1 rounded-[1px]">
+                  {m.comments_badge_pinned()}
+                </span>
+              )}
+              {comment.isFeatured && (
+                <span className="text-[9px] font-mono text-foreground/40 uppercase tracking-widest border border-border/30 px-1 rounded-[1px]">
+                  {m.comments_badge_featured()}
+                </span>
+              )}
 
               {isReply && replyToName && (
                 <span className="text-[10px] text-muted-foreground/50 font-mono">
@@ -119,6 +135,40 @@ export const CommentItem = memo(
           </div>
 
           {renderedContent}
+
+          {comment.status !== "deleted" && comment.reactions && (
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              {([
+                ["like", "👍"],
+                ["love", "❤️"],
+                ["laugh", "😂"],
+                ["wow", "😮"],
+                ["sad", "😢"],
+                ["angry", "😡"],
+                ["fire", "🔥"],
+                ["thinking", "🤔"],
+              ] as const).map(([reaction, emoji]) => {
+                const count = comment.reactions?.[reaction] ?? 0;
+                const active = comment.reactions?.myReactions.includes(reaction);
+                return (
+                  <button
+                    key={reaction}
+                    type="button"
+                    onClick={() => onReact?.(comment.id, reaction)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-3 py-1 text-xs border rounded-full font-mono transition-all duration-200 hover:-translate-y-0.5 hover:scale-105",
+                      active
+                        ? "bg-foreground text-background border-foreground shadow-[0_8px_20px_rgba(0,0,0,0.15)]"
+                        : "text-muted-foreground border-border/30 hover:text-foreground hover:border-foreground/40 hover:bg-muted/30",
+                    )}
+                  >
+                    <span className="text-base leading-none">{emoji}</span>
+                    <span className="text-[11px] font-semibold leading-none">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {comment.status !== "deleted" && (
             <div className="flex items-center gap-4 pt-2">

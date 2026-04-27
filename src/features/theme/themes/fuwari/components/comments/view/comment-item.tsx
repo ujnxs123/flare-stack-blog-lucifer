@@ -1,7 +1,11 @@
 import { ClientOnly } from "@tanstack/react-router";
 import { memo, useMemo } from "react";
-import type { CommentWithUser } from "@/features/comments/comments.schema";
+import type {
+  CommentReactionName,
+  CommentWithUser,
+} from "@/features/comments/comments.schema";
 import { authClient } from "@/lib/auth/auth.client";
+import { isContentAdminRole } from "@/lib/auth/roles";
 import { cn, formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import { ExpandableContent } from "./expandable-content";
@@ -10,6 +14,7 @@ interface CommentItemProps {
   comment: CommentWithUser;
   onReply?: (rootId: number, commentId: number, userName: string) => void;
   onDelete?: (commentId: number) => void;
+  onReact?: (commentId: number, reaction: CommentReactionName) => void;
   isReply?: boolean;
   replyToName?: string | null;
   highlightCommentId?: number;
@@ -21,6 +26,7 @@ export const FuwariCommentItem = memo(
     comment,
     onReply,
     onDelete,
+    onReact,
     isReply,
     replyToName,
     highlightCommentId,
@@ -31,8 +37,8 @@ export const FuwariCommentItem = memo(
     const { data: session } = authClient.useSession();
 
     const isAuthor = session?.user.id === comment.userId;
-    const isAdmin = session?.user.role === "admin";
-    const isBlogger = comment.user?.role === "admin";
+    const isAdmin = isContentAdminRole(session?.user.role);
+    const isBlogger = isContentAdminRole(comment.user?.role);
 
     const renderedContent = useMemo(() => {
       if (comment.status === "deleted") {
@@ -97,6 +103,16 @@ export const FuwariCommentItem = memo(
                   {m.comments_item_blogger()}
                 </span>
               )}
+              {comment.isPinned && (
+                <span className="text-[10px] font-medium text-(--fuwari-primary) border border-(--fuwari-primary)/30 px-1.5 py-0.5 rounded-md leading-none">
+                  {m.comments_badge_pinned()}
+                </span>
+              )}
+              {comment.isFeatured && (
+                <span className="text-[10px] font-medium text-(--fuwari-primary) border border-(--fuwari-primary)/30 px-1.5 py-0.5 rounded-md leading-none">
+                  {m.comments_badge_featured()}
+                </span>
+              )}
 
               {isReply && replyToName && (
                 <span className="text-xs fuwari-text-30">
@@ -117,6 +133,40 @@ export const FuwariCommentItem = memo(
           </div>
 
           {renderedContent}
+
+          {comment.status !== "deleted" && comment.reactions && (
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              {([
+                ["like", "👍"],
+                ["love", "❤️"],
+                ["laugh", "😂"],
+                ["wow", "😮"],
+                ["sad", "😢"],
+                ["angry", "😡"],
+                ["fire", "🔥"],
+                ["thinking", "🤔"],
+              ] as const).map(([reaction, emoji]) => {
+                const count = comment.reactions?.[reaction] ?? 0;
+                const active = comment.reactions?.myReactions.includes(reaction);
+                return (
+                  <button
+                    key={reaction}
+                    type="button"
+                    onClick={() => onReact?.(comment.id, reaction)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-3 py-1 text-xs border border-black/10 dark:border-white/20 rounded-full transition-all duration-200 hover:-translate-y-0.5 hover:scale-105",
+                      active
+                        ? "bg-(--fuwari-primary) text-white shadow-[0_8px_20px_rgba(0,0,0,0.2)]"
+                        : "fuwari-text-50 hover:fuwari-text-90 hover:bg-black/5 dark:hover:bg-white/8",
+                    )}
+                  >
+                    <span className="text-base leading-none">{emoji}</span>
+                    <span className="text-[11px] font-semibold leading-none">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {comment.status !== "deleted" && (
             <div className="flex items-center gap-4 pt-1">

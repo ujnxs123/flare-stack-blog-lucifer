@@ -8,13 +8,24 @@ import { useAdminComments } from "../../hooks/use-comments";
 interface CommentModerationActionsProps {
   commentId: number;
   status: string;
+  isPinned: boolean;
+  isFeatured: boolean;
 }
 
 export const CommentModerationActions = ({
   commentId,
   status,
+  isPinned,
+  isFeatured,
 }: CommentModerationActionsProps) => {
-  const { moderate, adminDelete, isModerating, isAdminDeleting } =
+  const {
+    moderate,
+    adminDelete,
+    setFlags,
+    isModerating,
+    isAdminDeleting,
+    isSettingFlags,
+  } =
     useAdminComments();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -45,7 +56,7 @@ export const CommentModerationActions = ({
     );
   };
 
-  const isLoading = isModerating || isAdminDeleting;
+  const isLoading = isModerating || isAdminDeleting || isSettingFlags;
 
   return (
     <div className="flex items-center justify-end relative" ref={menuRef}>
@@ -96,6 +107,28 @@ export const CommentModerationActions = ({
                 <Trash2 className="h-3 w-3 opacity-0 group-hover:opacity-100" />
               </button>
             )}
+
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                setFlags({ data: { id: commentId, isPinned: !isPinned } });
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 text-[10px] font-mono text-left hover:bg-muted/10 transition-colors text-foreground group"
+            >
+              <span>{isPinned ? m.comments_action_unpin() : m.comments_action_pin()}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                setFlags({
+                  data: { id: commentId, isFeatured: !isFeatured },
+                });
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 text-[10px] font-mono text-left hover:bg-muted/10 transition-colors text-foreground group"
+            >
+              <span>{isFeatured ? m.comments_action_unfeature() : m.comments_action_feature()}</span>
+            </button>
           </div>
 
           <div className="h-px bg-border/30 my-1" />

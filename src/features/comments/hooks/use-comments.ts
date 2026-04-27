@@ -5,8 +5,13 @@ import { m } from "@/paraglide/messages";
 import {
   adminDeleteCommentFn,
   moderateCommentFn,
+  setCommentFlagsFn,
 } from "../api/comments.admin.api";
-import { createCommentFn, deleteCommentFn } from "../api/comments.public.api";
+import {
+  createCommentFn,
+  deleteCommentFn,
+  toggleCommentReactionFn,
+} from "../api/comments.public.api";
 
 export function useComments(postId?: number) {
   const queryClient = useQueryClient();
@@ -108,11 +113,31 @@ export function useComments(postId?: number) {
     },
   });
 
+  const toggleReactionMutation = useMutation({
+    mutationFn: async (input: Parameters<typeof toggleCommentReactionFn>[0]) => {
+      return await toggleCommentReactionFn(input);
+    },
+    onSuccess: () => {
+      if (postId) {
+        queryClient.invalidateQueries({
+          queryKey: COMMENTS_KEYS.roots(postId),
+          exact: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: COMMENTS_KEYS.repliesLists(postId),
+          exact: false,
+        });
+      }
+    },
+  });
+
   return {
     createComment: createCommentMutation.mutateAsync,
     isCreating: createCommentMutation.isPending,
     deleteComment: deleteCommentMutation.mutateAsync,
     isDeleting: deleteCommentMutation.isPending,
+    toggleReaction: toggleReactionMutation.mutateAsync,
+    isTogglingReaction: toggleReactionMutation.isPending,
   };
 }
 
@@ -151,11 +176,22 @@ export function useAdminComments() {
     },
   });
 
+  const setFlagsMutation = useMutation({
+    mutationFn: async (input: Parameters<typeof setCommentFlagsFn>[0]) => {
+      return await setCommentFlagsFn(input);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: COMMENTS_KEYS.all });
+    },
+  });
+
   return {
     moderate: moderateMutation.mutate,
     moderateAsync: moderateMutation.mutateAsync,
     isModerating: moderateMutation.isPending,
     adminDelete: adminDeleteMutation.mutate,
     isAdminDeleting: adminDeleteMutation.isPending,
+    setFlags: setFlagsMutation.mutate,
+    isSettingFlags: setFlagsMutation.isPending,
   };
 }

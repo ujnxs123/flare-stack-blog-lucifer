@@ -336,6 +336,8 @@ export const CommentModerationTable = ({
                 <CommentModerationActions
                   commentId={comment.id}
                   status={comment.status}
+                  isPinned={comment.isPinned}
+                  isFeatured={comment.isFeatured}
                 />
               </div>
             </div>
@@ -415,6 +417,8 @@ export const CommentModerationTable = ({
                 <CommentModerationActions
                   commentId={comment.id}
                   status={comment.status}
+                  isPinned={comment.isPinned}
+                  isFeatured={comment.isFeatured}
                 />
               </div>
             </div>

@@ -5,8 +5,8 @@ import {
 } from "drizzle-zod";
 import { z } from "zod";
 import { JsonContentSchema } from "@/features/posts/schema/json-content.schema";
-import type { CommentStatus } from "@/lib/db/schema";
-import { CommentsTable } from "@/lib/db/schema";
+import type { CommentReaction, CommentStatus } from "@/lib/db/schema";
+import { COMMENT_REACTIONS, CommentsTable } from "@/lib/db/schema";
 
 // Date fields need to accept both Date objects and ISO strings (for JSON serialization)
 const coercedDate = z.union([z.date(), z.string().pipe(z.coerce.date())]);
@@ -41,6 +41,19 @@ export const CommentWithUserSchema = CommentSelectSchema.extend({
       name: z.string().optional().nullable(),
     })
     .nullable()
+    .optional(),
+  reactions: z
+    .object({
+      like: z.number(),
+      love: z.number(),
+      laugh: z.number(),
+      wow: z.number(),
+      sad: z.number(),
+      angry: z.number(),
+      fire: z.number(),
+      thinking: z.number(),
+      myReactions: z.array(z.enum(COMMENT_REACTIONS)),
+    })
     .optional(),
 });
 
@@ -134,6 +147,17 @@ export const ModerateCommentInputSchema = z.object({
   status: z.enum(["published", "deleted", "pending"]),
 });
 
+export const SetCommentFlagsInputSchema = z.object({
+  id: z.number(),
+  isPinned: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+});
+
+export const ToggleCommentReactionInputSchema = z.object({
+  commentId: z.number(),
+  reaction: z.enum(COMMENT_REACTIONS),
+});
+
 export const StartCommentModerationInputSchema = z.object({
   commentId: z.number(),
 });
@@ -148,6 +172,10 @@ export type DeleteCommentInput = z.infer<typeof DeleteCommentInputSchema>;
 export type GetMyCommentsInput = z.infer<typeof GetMyCommentsInputSchema>;
 export type GetAllCommentsInput = z.infer<typeof GetAllCommentsInputSchema>;
 export type ModerateCommentInput = z.infer<typeof ModerateCommentInputSchema>;
+export type SetCommentFlagsInput = z.infer<typeof SetCommentFlagsInputSchema>;
+export type ToggleCommentReactionInput = z.infer<
+  typeof ToggleCommentReactionInputSchema
+>;
 export type StartCommentModerationInput = z.infer<
   typeof StartCommentModerationInputSchema
 >;
@@ -155,3 +183,4 @@ export type RootCommentWithReplyCount = z.infer<
   typeof RootCommentWithReplyCountSchema
 >;
 export type CommentWithUser = z.infer<typeof CommentWithUserSchema>;
+export type CommentReactionName = CommentReaction;

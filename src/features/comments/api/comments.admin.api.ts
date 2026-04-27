@@ -4,6 +4,7 @@ import {
   GetAllCommentsInputSchema,
   GetUserStatsInputSchema,
   ModerateCommentInputSchema,
+  SetCommentFlagsInputSchema,
 } from "@/features/comments/comments.schema";
 import * as CommentService from "@/features/comments/comments.service";
 import { adminMiddleware } from "@/lib/middlewares";
@@ -50,4 +51,13 @@ export const getUserStatsFn = createServerFn()
   .handler(
     async ({ data, context }) =>
       await CommentService.getUserCommentStats(context, data.userId),
+  );
+
+export const setCommentFlagsFn = createServerFn({
+  method: "POST",
+})
+  .middleware([adminMiddleware])
+  .inputValidator(SetCommentFlagsInputSchema)
+  .handler(
+    async ({ data, context }) => await CommentService.setCommentFlags(context, data),
   );

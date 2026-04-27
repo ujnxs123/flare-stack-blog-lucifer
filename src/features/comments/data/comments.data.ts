@@ -1,8 +1,14 @@
-import { and, count, desc, eq, like, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, like, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
 import { buildCommentWhereClause } from "@/features/comments/data/helper";
+import type { CommentReaction } from "@/lib/db/schema";
 import type { CommentStatus } from "@/lib/db/schema";
-import { CommentsTable, PostsTable, user } from "@/lib/db/schema";
+import {
+  CommentReactionsTable,
+  CommentsTable,
+  PostsTable,
+  user,
+} from "@/lib/db/schema";
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -49,6 +55,8 @@ export async function getRootCommentsByPostId(
       userId: CommentsTable.userId,
       status: CommentsTable.status,
       aiReason: CommentsTable.aiReason,
+      isPinned: CommentsTable.isPinned,
+      isFeatured: CommentsTable.isFeatured,
       createdAt: CommentsTable.createdAt,
       updatedAt: CommentsTable.updatedAt,
       user: {
@@ -61,7 +69,7 @@ export async function getRootCommentsByPostId(
     .from(CommentsTable)
     .leftJoin(user, eq(CommentsTable.userId, user.id))
     .where(conditions)
-    .orderBy(desc(CommentsTable.createdAt))
+    .orderBy(desc(CommentsTable.isPinned), desc(CommentsTable.createdAt))
     .limit(Math.min(limit, 100))
     .offset(offset);
 
@@ -149,6 +157,8 @@ export async function getRepliesByRootId(
       userId: CommentsTable.userId,
       status: CommentsTable.status,
       aiReason: CommentsTable.aiReason,
+      isPinned: CommentsTable.isPinned,
+      isFeatured: CommentsTable.isFeatured,
       createdAt: CommentsTable.createdAt,
       updatedAt: CommentsTable.updatedAt,
       user: {
@@ -289,6 +299,8 @@ export async function getAllComments(
       userId: CommentsTable.userId,
       status: CommentsTable.status,
       aiReason: CommentsTable.aiReason,
+      isPinned: CommentsTable.isPinned,
+      isFeatured: CommentsTable.isFeatured,
       createdAt: CommentsTable.createdAt,
       updatedAt: CommentsTable.updatedAt,
       user: {
@@ -364,6 +376,134 @@ export async function updateComment(
 
 export async function deleteComment(db: DB, id: number) {
   await db.delete(CommentsTable).where(eq(CommentsTable.id, id));
+}
+
+export async function setCommentFlags(
+  db: DB,
+  id: number,
+  data: { isPinned?: boolean; isFeatured?: boolean },
+) {
+  const [updated] = await db
+    .update(CommentsTable)
+    .set(data)
+    .where(eq(CommentsTable.id, id))
+    .returning();
+
+  return updated;
+}
+
+export async function toggleCommentReaction(
+  db: DB,
+  data: { commentId: number; userId: string; reaction: CommentReaction },
+) {
+  const existing = await db
+    .select({ reaction: CommentReactionsTable.reaction })
+    .from(CommentReactionsTable)
+    .where(
+      and(
+        eq(CommentReactionsTable.commentId, data.commentId),
+        eq(CommentReactionsTable.userId, data.userId),
+        eq(CommentReactionsTable.reaction, data.reaction),
+      ),
+    )
+    .limit(1);
+
+  if (existing.length > 0) {
+    await db
+      .delete(CommentReactionsTable)
+      .where(
+        and(
+          eq(CommentReactionsTable.commentId, data.commentId),
+          eq(CommentReactionsTable.userId, data.userId),
+          eq(CommentReactionsTable.reaction, data.reaction),
+        ),
+      );
+    return { active: false };
+  }
+
+  await db.insert(CommentReactionsTable).values({
+    commentId: data.commentId,
+    userId: data.userId,
+    reaction: data.reaction,
+  });
+  return { active: true };
+}
+
+export async function getCommentReactionsByCommentIds(
+  db: DB,
+  commentIds: Array<number>,
+  viewerId?: string,
+) {
+  if (commentIds.length === 0) {
+    return new Map<number, {
+      like: number;
+      love: number;
+      laugh: number;
+      wow: number;
+      sad: number;
+      angry: number;
+      fire: number;
+      thinking: number;
+      myReactions: Array<CommentReaction>;
+    }>();
+  }
+
+  const rows = await db
+    .select({
+      commentId: CommentReactionsTable.commentId,
+      reaction: CommentReactionsTable.reaction,
+      userId: CommentReactionsTable.userId,
+      total: count(),
+    })
+    .from(CommentReactionsTable)
+    .where(inArray(CommentReactionsTable.commentId, commentIds))
+    .groupBy(
+      CommentReactionsTable.commentId,
+      CommentReactionsTable.reaction,
+      CommentReactionsTable.userId,
+    );
+
+  const map = new Map<
+    number,
+    {
+      like: number;
+      love: number;
+      laugh: number;
+      wow: number;
+      sad: number;
+      angry: number;
+      fire: number;
+      thinking: number;
+      myReactions: Array<CommentReaction>;
+    }
+  >();
+
+  for (const commentId of commentIds) {
+    map.set(commentId, {
+      like: 0,
+      love: 0,
+      laugh: 0,
+      wow: 0,
+      sad: 0,
+      angry: 0,
+      fire: 0,
+      thinking: 0,
+      myReactions: [],
+    });
+  }
+
+  for (const row of rows) {
+    const current = map.get(row.commentId);
+    if (!current) continue;
+
+    current[row.reaction] += Number(row.total);
+
+    if (viewerId && row.userId === viewerId) {
+      current.myReactions.push(row.reaction);
+    }
+  }
+
+  return map;
 }
 
 export async function getUserCommentStats(db: DB, userId: string) {

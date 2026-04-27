@@ -34,7 +34,13 @@ export const CommentSection = ({ postId, className }: CommentSectionProps) => {
   const rootComments = data?.pages.flatMap((page) => page.items) ?? [];
   const totalCount = data?.pages[0]?.total ?? 0;
 
-  const { createComment, deleteComment, isCreating, isDeleting } =
+  const {
+    createComment,
+    deleteComment,
+    toggleReaction,
+    isCreating,
+    isDeleting,
+  } =
     useComments(postId);
 
   const [replyTarget, setReplyTarget] = useState<{
@@ -200,6 +206,9 @@ export const CommentSection = ({ postId, className }: CommentSectionProps) => {
           setReplyTarget({ rootId: rootIdArg, commentId, userName })
         }
         onDelete={(id) => setCommentToDelete(id)}
+        onReact={(commentId, reaction) =>
+          toggleReaction({ data: { commentId, reaction } })
+        }
         replyTarget={replyTarget}
         onCancelReply={() => setReplyTarget(null)}
         onSubmitReply={handleCreateReply}

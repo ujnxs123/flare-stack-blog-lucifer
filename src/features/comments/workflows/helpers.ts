@@ -3,6 +3,7 @@ import * as CommentRepo from "@/features/comments/data/comments.data";
 import { generateUnsubscribeToken } from "@/features/email/email.utils";
 import { publishNotificationEvent } from "@/features/notification/service/notification.publisher";
 import { convertToPlainText } from "@/features/posts/utils/content";
+import { isContentAdminRole } from "@/lib/auth/roles";
 import { serverEnv } from "@/lib/env/server.env";
 
 interface SendReplyNotificationParams {
@@ -88,7 +89,7 @@ export async function sendReplyNotification(
       { db: context.db, env: context.env, executionCtx: context.executionCtx },
       {
         type:
-          replyToAuthor.role === "admin"
+          isContentAdminRole(replyToAuthor.role)
             ? "comment.reply_to_admin_published"
             : "comment.reply_to_user_published",
         data: {

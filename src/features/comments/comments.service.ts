@@ -5,15 +5,47 @@ import type {
   GetCommentsByPostIdInput,
   GetMyCommentsInput,
   ModerateCommentInput,
+  SetCommentFlagsInput,
   StartCommentModerationInput,
+  ToggleCommentReactionInput,
 } from "@/features/comments/comments.schema";
 import * as CommentRepo from "@/features/comments/data/comments.data";
 import { sendReplyNotification } from "@/features/comments/workflows/helpers";
 import { publishNotificationEvent } from "@/features/notification/service/notification.publisher";
 import * as PostService from "@/features/posts/services/posts.service";
 import { convertToPlainText } from "@/features/posts/utils/content";
+import { isContentAdminRole } from "@/lib/auth/roles";
 import { serverEnv } from "@/lib/env/server.env";
 import { err, ok } from "@/lib/errors";
+
+async function hydrateCommentsWithReactions<
+  T extends { id: number },
+>(
+  context: DbContext,
+  items: T[],
+  viewerId?: string,
+) {
+  const reactionsMap = await CommentRepo.getCommentReactionsByCommentIds(
+    context.db,
+    items.map((item) => item.id),
+    viewerId,
+  );
+
+  return items.map((item) => ({
+    ...item,
+    reactions: reactionsMap.get(item.id) ?? {
+      like: 0,
+      love: 0,
+      laugh: 0,
+      wow: 0,
+      sad: 0,
+      angry: 0,
+      fire: 0,
+      thinking: 0,
+      myReactions: [],
+    },
+  }));
+}
 
 // ============ Public Service Methods ============
 
@@ -50,7 +82,14 @@ export async function getRootCommentsByPostId(
     }),
   );
 
-  return { items: itemsWithReplyCount, total };
+  return {
+    items: await hydrateCommentsWithReactions(
+      context,
+      itemsWithReplyCount,
+      data.viewerId,
+    ),
+    total,
+  };
 }
 
 export async function getRepliesByRootId(
@@ -72,7 +111,10 @@ export async function getRepliesByRootId(
     }),
   ]);
 
-  return { items, total };
+  return {
+    items: await hydrateCommentsWithReactions(context, items, data.viewerId),
+    total,
+  };
 }
 
 // ============ Authed User Service Methods ============
@@ -128,7 +170,7 @@ export async function createComment(
     }
   }
 
-  const isAdmin = context.session.user.role === "admin";
+  const isAdmin = isContentAdminRole(context.session.user.role);
 
   const comment = await CommentRepo.insertComment(context.db, {
     postId: data.postId,
@@ -202,7 +244,7 @@ export async function deleteComment(
 
   // Only allow deleting own comments (unless admin)
   const userRole = context.session.user.role;
-  if (comment.userId !== context.session.user.id && userRole !== "admin") {
+  if (comment.userId !== context.session.user.id && !isContentAdminRole(userRole)) {
     return err({ reason: "PERMISSION_DENIED" });
   }
 
@@ -252,7 +294,49 @@ export async function getAllComments(
     }),
   ]);
 
-  return { items, total };
+  return {
+    items: await hydrateCommentsWithReactions(context, items),
+    total,
+  };
+}
+
+export async function setCommentFlags(
+  context: DbContext,
+  data: SetCommentFlagsInput,
+) {
+  const existing = await CommentRepo.findCommentById(context.db, data.id);
+  if (!existing) {
+    return err({ reason: "COMMENT_NOT_FOUND" });
+  }
+
+  const updated = await CommentRepo.setCommentFlags(context.db, data.id, {
+    isPinned: data.isPinned,
+    isFeatured: data.isFeatured,
+  });
+
+  if (!updated) {
+    return err({ reason: "COMMENT_NOT_FOUND" });
+  }
+
+  return ok(updated);
+}
+
+export async function toggleCommentReaction(
+  context: AuthContext,
+  data: ToggleCommentReactionInput,
+) {
+  const comment = await CommentRepo.findCommentById(context.db, data.commentId);
+  if (!comment) {
+    return err({ reason: "COMMENT_NOT_FOUND" });
+  }
+
+  const result = await CommentRepo.toggleCommentReaction(context.db, {
+    commentId: data.commentId,
+    userId: context.session.user.id,
+    reaction: data.reaction,
+  });
+
+  return ok(result);
 }
 
 export async function moderateComment(

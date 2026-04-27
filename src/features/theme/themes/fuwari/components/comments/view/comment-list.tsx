@@ -2,7 +2,10 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import type { JSONContent } from "@tiptap/react";
 import { useEffect, useState } from "react";
-import type { RootCommentWithReplyCount } from "@/features/comments/comments.schema";
+import type {
+  CommentReactionName,
+  RootCommentWithReplyCount,
+} from "@/features/comments/comments.schema";
 import { repliesByRootIdInfiniteQuery } from "@/features/comments/queries";
 import { authClient } from "@/lib/auth/auth.client";
 import { m } from "@/paraglide/messages";
@@ -16,6 +19,7 @@ interface CommentListProps {
   postId: number;
   onReply?: (rootId: number, commentId: number, userName: string) => void;
   onDelete?: (commentId: number) => void;
+  onReact?: (commentId: number, reaction: CommentReactionName) => void;
   replyTarget?: { rootId: number; commentId: number; userName: string } | null;
   onCancelReply?: () => void;
   onSubmitReply?: (content: JSONContent) => Promise<void>;
@@ -29,6 +33,7 @@ export const FuwariCommentList = ({
   postId,
   onReply,
   onDelete,
+  onReact,
   replyTarget,
   onCancelReply,
   onSubmitReply,
@@ -76,6 +81,7 @@ export const FuwariCommentList = ({
           onToggleExpand={() => toggleExpand(root.id)}
           onReply={onReply}
           onDelete={onDelete}
+          onReact={onReact}
           replyTarget={replyTarget}
           onCancelReply={onCancelReply}
           onSubmitReply={onSubmitReply}
@@ -95,6 +101,7 @@ interface RootCommentWithRepliesProps {
   onToggleExpand: () => void;
   onReply?: (rootId: number, commentId: number, userName: string) => void;
   onDelete?: (commentId: number) => void;
+  onReact?: (commentId: number, reaction: CommentReactionName) => void;
   replyTarget?: { rootId: number; commentId: number; userName: string } | null;
   onCancelReply?: () => void;
   onSubmitReply?: (content: JSONContent) => Promise<void>;
@@ -110,6 +117,7 @@ function RootCommentWithReplies({
   onToggleExpand,
   onReply,
   onDelete,
+  onReact,
   replyTarget,
   onCancelReply,
   onSubmitReply,
@@ -146,6 +154,7 @@ function RootCommentWithReplies({
           }
         }}
         onDelete={onDelete}
+        onReact={onReact}
         highlightCommentId={highlightCommentId}
         className={root.replyCount > 0 ? "pb-2 border-b-0" : ""}
       />
@@ -213,6 +222,7 @@ function RootCommentWithReplies({
                         }
                       }}
                       onDelete={onDelete}
+                      onReact={onReact}
                       isReply
                       replyToName={reply.replyTo?.name}
                       highlightCommentId={highlightCommentId}

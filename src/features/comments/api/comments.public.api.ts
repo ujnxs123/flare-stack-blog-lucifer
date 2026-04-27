@@ -5,6 +5,7 @@ import {
   GetCommentsByPostIdInputSchema,
   GetMyCommentsInputSchema,
   GetRepliesByRootIdInputSchema,
+  ToggleCommentReactionInputSchema,
 } from "@/features/comments/comments.schema";
 import * as CommentService from "@/features/comments/comments.service";
 import {
@@ -86,4 +87,12 @@ export const getMyCommentsFn = createServerFn()
   .handler(
     async ({ data, context }) =>
       await CommentService.getMyComments(context, data),
+  );
+
+export const toggleCommentReactionFn = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .inputValidator(ToggleCommentReactionInputSchema)
+  .handler(
+    async ({ data, context }) =>
+      await CommentService.toggleCommentReaction(context, data),
   );
