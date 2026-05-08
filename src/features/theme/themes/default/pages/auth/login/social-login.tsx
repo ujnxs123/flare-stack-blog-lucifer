@@ -96,9 +96,7 @@ export function SocialLogin({
             )}
 
             <span className="text-[10px] font-mono uppercase tracking-widest">
-              {isGoogleLoading
-                ? m.login_social_connecting()
-                : m.login_google()}
+              {isGoogleLoading ? m.login_social_connecting() : m.login_google()}
             </span>
           </button>
         )}
@@ -112,4 +110,3 @@ export function SocialLogin({
     </div>
   );
 }
-

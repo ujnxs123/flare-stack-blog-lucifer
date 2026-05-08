@@ -203,7 +203,11 @@ export async function deleteComment(
 
   // Only allow deleting own comments (unless admin)
   const userRole = context.session.user.role;
-  if (comment.userId !== context.session.user.id && userRole !== "admin" && userRole !== "superadmin") {
+  if (
+    comment.userId !== context.session.user.id &&
+    userRole !== "admin" &&
+    userRole !== "superadmin"
+  ) {
     return err({ reason: "PERMISSION_DENIED" });
   }
 

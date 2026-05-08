@@ -19,17 +19,13 @@ export function TermsPage(_: TermsPageProps) {
       </header>
 
       <div className="space-y-12 text-base leading-relaxed">
-        <p className="text-muted-foreground">
-          {m.terms_intro({ siteName })}
-        </p>
+        <p className="text-muted-foreground">{m.terms_intro({ siteName })}</p>
 
         <section>
           <h2 className="text-2xl font-serif font-medium text-foreground mb-4">
             {m.terms_section_use_title()}
           </h2>
-          <p className="text-muted-foreground">
-            {m.terms_section_use_text()}
-          </p>
+          <p className="text-muted-foreground">{m.terms_section_use_text()}</p>
         </section>
 
         <section>

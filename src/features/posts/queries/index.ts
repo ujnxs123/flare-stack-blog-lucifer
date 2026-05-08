@@ -68,7 +68,7 @@ export function recentPostsQuery(limit: number) {
 }
 
 export function postsInfiniteQueryOptions(
-  filters: { tagName?: string; limit?: number } = {},
+  filters: { tagName?: string; authorName?: string; limit?: number } = {},
 ) {
   const pageSize = filters.limit ?? 12;
   return infiniteQueryOptions({
@@ -80,6 +80,7 @@ export function postsInfiniteQueryOptions(
             cursor: pageParam,
             limit: pageSize,
             tagName: filters.tagName,
+            authorName: filters.authorName,
           },
         });
       }
@@ -88,6 +89,7 @@ export function postsInfiniteQueryOptions(
           cursor: pageParam?.toString(),
           limit: String(pageSize),
           tagName: filters.tagName,
+          authorName: filters.authorName,
         },
       });
       if (!res.ok) throw new Error("Failed to fetch posts");

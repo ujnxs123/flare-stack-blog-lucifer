@@ -1,1 +1,1 @@
-export type PrivacyPageProps = {};
+export type PrivacyPageProps = Record<string, never>;

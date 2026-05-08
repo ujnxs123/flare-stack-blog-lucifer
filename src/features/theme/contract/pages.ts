@@ -8,6 +8,7 @@
  */
 
 export type * from "./pages/about";
+export type * from "./pages/author";
 export type * from "./pages/contact";
 export type * from "./pages/forgot-password";
 export type * from "./pages/friend-links";
@@ -20,5 +21,6 @@ export type * from "./pages/profile";
 export type * from "./pages/register";
 export type * from "./pages/reset-password";
 export type * from "./pages/search";
+export type * from "./pages/tag";
 export type * from "./pages/terms";
 export type * from "./pages/verify-email";

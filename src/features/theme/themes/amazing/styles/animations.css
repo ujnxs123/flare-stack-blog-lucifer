@@ -92,7 +92,8 @@
     box-shadow: 0 0 8px rgba(var(--amazing-primary-rgb), 0.3);
   }
   50% {
-    box-shadow: 0 0 24px rgba(var(--amazing-primary-rgb), 0.6),
+    box-shadow:
+      0 0 24px rgba(var(--amazing-primary-rgb), 0.6),
       0 0 48px rgba(var(--amazing-accent-rgb), 0.2);
   }
 }

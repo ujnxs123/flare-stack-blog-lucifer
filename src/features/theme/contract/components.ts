@@ -7,6 +7,7 @@ import type {
 } from "./layouts";
 import type {
   AboutPageProps,
+  AuthorPageProps,
   ContactPageProps,
   ForgotPasswordPageProps,
   FriendLinksPageProps,
@@ -20,6 +21,7 @@ import type {
   ResetPasswordPageProps,
   SearchPageProps,
   SubmitFriendLinkPageProps,
+  TagPageProps,
   TermsPageProps,
   VerifyEmailPageProps,
 } from "./pages";
@@ -43,6 +45,11 @@ export interface ThemeComponents {
   HomePage: React.ComponentType<HomePageProps>;
   /** 主页加载中骨架屏（用于 TanStack Router pendingComponent） */
   HomePageSkeleton: React.ComponentType;
+
+  /** 标签页组件 */
+  TagPage: React.ComponentType<TagPageProps>;
+  /** 作者页组件 */
+  AuthorPage: React.ComponentType<AuthorPageProps>;
 
   /** 文章列表页组件 */
   PostsPage: React.ComponentType<PostsPageProps>;

@@ -3,6 +3,7 @@ import {
   getRequestHeader,
   getRequestHeaders,
 } from "@tanstack/react-start/server";
+import { eq } from "drizzle-orm";
 import { getAuth } from "@/lib/auth/auth.server";
 import { getDb } from "@/lib/db";
 import { user as userTable } from "@/lib/db/schema";
@@ -15,7 +16,6 @@ import {
   createTurnstileError,
 } from "@/lib/errors";
 import { verifyTurnstileToken } from "@/lib/turnstile";
-import { eq } from "drizzle-orm";
 
 /* ======================= Error Logging ====================== */
 
@@ -70,7 +70,8 @@ export const sessionMiddleware = createMiddleware({ type: "function" })
     if (
       session &&
       session.user.role !== "superadmin" &&
-      session.user.email.toLowerCase() === serverEnv(context.env).ADMIN_EMAIL?.toLowerCase()
+      session.user.email.toLowerCase() ===
+        serverEnv(context.env).ADMIN_EMAIL?.toLowerCase()
     ) {
       await context.db
         .update(userTable)

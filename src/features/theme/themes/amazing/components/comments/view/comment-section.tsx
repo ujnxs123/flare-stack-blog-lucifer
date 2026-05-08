@@ -21,7 +21,10 @@ interface FuwariCommentSectionProps {
   postAuthorName?: string | null;
 }
 
-export function FuwariCommentSection({ postId, postAuthorName }: FuwariCommentSectionProps) {
+export function FuwariCommentSection({
+  postId,
+  postAuthorName,
+}: FuwariCommentSectionProps) {
   const { data: session } = authClient.useSession();
   const { rootId, highlightCommentId } = routeApi.useSearch();
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =

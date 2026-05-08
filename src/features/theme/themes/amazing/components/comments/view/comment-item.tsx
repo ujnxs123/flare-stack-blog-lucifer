@@ -33,8 +33,11 @@ export const FuwariCommentItem = memo(
     const { data: session } = authClient.useSession();
 
     const isAuthor = session?.user.id === comment.userId;
-    const isAdmin = session?.user.role === "admin" || session?.user.role === "superadmin";
-    const isBlogger = Boolean(postAuthorName && comment.user?.name === postAuthorName);
+    const isAdmin =
+      session?.user.role === "admin" || session?.user.role === "superadmin";
+    const isBlogger = Boolean(
+      postAuthorName && comment.user?.name === postAuthorName,
+    );
 
     const renderedContent = useMemo(() => {
       if (comment.status === "deleted") {

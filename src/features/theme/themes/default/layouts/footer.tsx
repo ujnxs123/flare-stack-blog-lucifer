@@ -48,10 +48,7 @@ export function Footer({ navOptions }: FooterProps) {
           >
             {m.nav_privacy()}
           </Link>
-          <Link
-            to="/terms"
-            className="hover:text-foreground transition-colors"
-          >
+          <Link to="/terms" className="hover:text-foreground transition-colors">
             {m.nav_terms()}
           </Link>
           {siteConfig.social

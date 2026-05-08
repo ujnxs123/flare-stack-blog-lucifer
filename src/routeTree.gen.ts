@@ -39,7 +39,9 @@ import { Route as AdminPostsIndexRouteImport } from './routes/admin/posts/index'
 import { Route as AdminMediaIndexRouteImport } from './routes/admin/media/index'
 import { Route as AdminFriendLinksIndexRouteImport } from './routes/admin/friend-links/index'
 import { Route as AdminCommentsIndexRouteImport } from './routes/admin/comments/index'
+import { Route as PublicTagsNameRouteImport } from './routes/_public/tags/$name'
 import { Route as PublicPostSlugRouteImport } from './routes/_public/post/$slug'
+import { Route as PublicAuthorUsernameRouteImport } from './routes/_public/author/$username'
 import { Route as AdminPostsEditIdRouteImport } from './routes/admin/posts/edit.$id'
 
 const AdminRouteRoute = AdminRouteRouteImport.update({
@@ -189,9 +191,19 @@ const AdminCommentsIndexRoute = AdminCommentsIndexRouteImport.update({
   path: '/comments/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const PublicTagsNameRoute = PublicTagsNameRouteImport.update({
+  id: '/tags/$name',
+  path: '/tags/$name',
+  getParentRoute: () => PublicRouteRoute,
+} as any)
 const PublicPostSlugRoute = PublicPostSlugRouteImport.update({
   id: '/post/$slug',
   path: '/post/$slug',
+  getParentRoute: () => PublicRouteRoute,
+} as any)
+const PublicAuthorUsernameRoute = PublicAuthorUsernameRouteImport.update({
+  id: '/author/$username',
+  path: '/author/$username',
   getParentRoute: () => PublicRouteRoute,
 } as any)
 const AdminPostsEditIdRoute = AdminPostsEditIdRouteImport.update({
@@ -221,7 +233,9 @@ export interface FileRoutesByFullPath {
   '/oauth/consent': typeof OauthConsentRoute
   '/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
+  '/author/$username': typeof PublicAuthorUsernameRoute
   '/post/$slug': typeof PublicPostSlugRoute
+  '/tags/$name': typeof PublicTagsNameRoute
   '/admin/comments': typeof AdminCommentsIndexRoute
   '/admin/friend-links': typeof AdminFriendLinksIndexRoute
   '/admin/media': typeof AdminMediaIndexRoute
@@ -250,7 +264,9 @@ export interface FileRoutesByTo {
   '/oauth/consent': typeof OauthConsentRoute
   '/': typeof PublicIndexRoute
   '/admin': typeof AdminIndexRoute
+  '/author/$username': typeof PublicAuthorUsernameRoute
   '/post/$slug': typeof PublicPostSlugRoute
+  '/tags/$name': typeof PublicTagsNameRoute
   '/admin/comments': typeof AdminCommentsIndexRoute
   '/admin/friend-links': typeof AdminFriendLinksIndexRoute
   '/admin/media': typeof AdminMediaIndexRoute
@@ -285,7 +301,9 @@ export interface FileRoutesById {
   '/oauth/consent': typeof OauthConsentRoute
   '/_public/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
+  '/_public/author/$username': typeof PublicAuthorUsernameRoute
   '/_public/post/$slug': typeof PublicPostSlugRoute
+  '/_public/tags/$name': typeof PublicTagsNameRoute
   '/admin/comments/': typeof AdminCommentsIndexRoute
   '/admin/friend-links/': typeof AdminFriendLinksIndexRoute
   '/admin/media/': typeof AdminMediaIndexRoute
@@ -318,7 +336,9 @@ export interface FileRouteTypes {
     | '/oauth/consent'
     | '/'
     | '/admin/'
+    | '/author/$username'
     | '/post/$slug'
+    | '/tags/$name'
     | '/admin/comments'
     | '/admin/friend-links'
     | '/admin/media'
@@ -347,7 +367,9 @@ export interface FileRouteTypes {
     | '/oauth/consent'
     | '/'
     | '/admin'
+    | '/author/$username'
     | '/post/$slug'
+    | '/tags/$name'
     | '/admin/comments'
     | '/admin/friend-links'
     | '/admin/media'
@@ -381,7 +403,9 @@ export interface FileRouteTypes {
     | '/oauth/consent'
     | '/_public/'
     | '/admin/'
+    | '/_public/author/$username'
     | '/_public/post/$slug'
+    | '/_public/tags/$name'
     | '/admin/comments/'
     | '/admin/friend-links/'
     | '/admin/media/'
@@ -612,11 +636,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommentsIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_public/tags/$name': {
+      id: '/_public/tags/$name'
+      path: '/tags/$name'
+      fullPath: '/tags/$name'
+      preLoaderRoute: typeof PublicTagsNameRouteImport
+      parentRoute: typeof PublicRouteRoute
+    }
     '/_public/post/$slug': {
       id: '/_public/post/$slug'
       path: '/post/$slug'
       fullPath: '/post/$slug'
       preLoaderRoute: typeof PublicPostSlugRouteImport
+      parentRoute: typeof PublicRouteRoute
+    }
+    '/_public/author/$username': {
+      id: '/_public/author/$username'
+      path: '/author/$username'
+      fullPath: '/author/$username'
+      preLoaderRoute: typeof PublicAuthorUsernameRouteImport
       parentRoute: typeof PublicRouteRoute
     }
     '/admin/posts/edit/$id': {
@@ -659,7 +697,9 @@ interface PublicRouteRouteChildren {
   PublicTermsRoute: typeof PublicTermsRoute
   PublicUnsubscribeRoute: typeof PublicUnsubscribeRoute
   PublicIndexRoute: typeof PublicIndexRoute
+  PublicAuthorUsernameRoute: typeof PublicAuthorUsernameRoute
   PublicPostSlugRoute: typeof PublicPostSlugRoute
+  PublicTagsNameRoute: typeof PublicTagsNameRoute
 }
 
 const PublicRouteRouteChildren: PublicRouteRouteChildren = {
@@ -672,7 +712,9 @@ const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicTermsRoute: PublicTermsRoute,
   PublicUnsubscribeRoute: PublicUnsubscribeRoute,
   PublicIndexRoute: PublicIndexRoute,
+  PublicAuthorUsernameRoute: PublicAuthorUsernameRoute,
   PublicPostSlugRoute: PublicPostSlugRoute,
+  PublicTagsNameRoute: PublicTagsNameRoute,
 }
 
 const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(

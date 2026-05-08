@@ -84,8 +84,10 @@ export function Tags() {
                 } as React.CSSProperties
               }
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = `linear-gradient(135deg, hsla(${hue}, 70%, 60%, 0.15), hsla(${hue + 60}, 70%, 60%, 0.1))`;
-                (e.currentTarget as HTMLElement).style.borderColor = `hsla(${hue}, 70%, 60%, 0.3)`;
+                (e.currentTarget as HTMLElement).style.background =
+                  `linear-gradient(135deg, hsla(${hue}, 70%, 60%, 0.15), hsla(${hue + 60}, 70%, 60%, 0.1))`;
+                (e.currentTarget as HTMLElement).style.borderColor =
+                  `hsla(${hue}, 70%, 60%, 0.3)`;
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLElement).style.background = "";

@@ -108,6 +108,7 @@ export async function getPostsCursor(
     limit?: number;
     publicOnly?: boolean;
     tagName?: string;
+    authorName?: string;
     excludePinned?: boolean;
   } = {},
 ): Promise<{
@@ -119,6 +120,7 @@ export async function getPostsCursor(
     limit = DEFAULT_PAGE_SIZE,
     publicOnly,
     tagName,
+    authorName,
     excludePinned,
   } = options;
 
@@ -155,6 +157,10 @@ export async function getPostsCursor(
 
   if (tagName) {
     conditions.push(eq(TagsTable.name, tagName));
+  }
+
+  if (authorName) {
+    conditions.push(eq(PostsTable.authorName, authorName));
   }
 
   if (excludePinned) {
@@ -539,6 +545,22 @@ export async function getPublicPostsByIds(db: DB, ids: Array<number>) {
  * Fetch full post data (including tags and content) for export or other detailed use cases.
  * Uses Drizzle relational queries for efficiency.
  */
+export async function getPublishedAuthorNames(db: DB): Promise<Array<string>> {
+  const results = await db
+    .selectDistinct({ authorName: PostsTable.authorName })
+    .from(PostsTable)
+    .where(
+      and(
+        eq(PostsTable.status, "published"),
+        sql`date(${PostsTable.publishedAt}, 'unixepoch') <= date('now')`,
+      ),
+    );
+
+  return results
+    .map((r) => r.authorName)
+    .filter((name): name is string => name !== null);
+}
+
 export async function findFullPosts(
   db: DB,
   options: {

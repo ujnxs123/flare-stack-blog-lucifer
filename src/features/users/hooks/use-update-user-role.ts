@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { m } from "@/paraglide/messages";
 import { updateUserRoleFn } from "../api/users.admin.api";
 import { USERS_KEYS } from "../queries";
 import type { UpdateUserRoleInput } from "../users.schema";
-import { m } from "@/paraglide/messages";
 
 export function useUpdateUserRole() {
   const queryClient = useQueryClient();

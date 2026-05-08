@@ -56,7 +56,8 @@ export function BackToTop() {
           isVisible
             ? "opacity-100 translate-x-20 scale-100"
             : "opacity-0 translate-x-20 scale-75 pointer-events-none",
-          isLaunching && "animate-[amazing-rocket-launch_0.5s_ease-out_forwards]",
+          isLaunching &&
+            "animate-[amazing-rocket-launch_0.5s_ease-out_forwards]",
         )}
         style={{
           transitionTimingFunction: isVisible

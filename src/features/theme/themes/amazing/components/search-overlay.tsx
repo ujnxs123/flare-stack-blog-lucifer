@@ -1,19 +1,13 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Keyboard, Loader2, Search, X } from "lucide-react";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   searchDocsQueryOptions,
   searchMetaQuery,
 } from "@/features/search/queries";
-import { useDebounce } from "@/hooks/use-debounce";
 import type { SearchResultItem } from "@/features/theme/contract/pages/search";
+import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 
@@ -186,22 +180,24 @@ export function SearchOverlay({
           )}
 
           {/* No results */}
-          {query.trim() !== "" && !isSearching && searchResults.length === 0 && (
-            <div
-              className="flex-1 flex flex-col items-center justify-center text-center fuwari-onload-animation"
-              style={{ animationDelay: "200ms" }}
-            >
-              <div className="w-16 h-16 rounded-full bg-(--fuwari-btn-regular-bg) flex items-center justify-center mb-4 text-(--fuwari-btn-content)">
-                <Search size={24} strokeWidth={1.5} />
+          {query.trim() !== "" &&
+            !isSearching &&
+            searchResults.length === 0 && (
+              <div
+                className="flex-1 flex flex-col items-center justify-center text-center fuwari-onload-animation"
+                style={{ animationDelay: "200ms" }}
+              >
+                <div className="w-16 h-16 rounded-full bg-(--fuwari-btn-regular-bg) flex items-center justify-center mb-4 text-(--fuwari-btn-content)">
+                  <Search size={24} strokeWidth={1.5} />
+                </div>
+                <h3 className="text-lg font-bold fuwari-text-75 mb-2">
+                  {m.search_no_results()}
+                </h3>
+                <p className="text-sm fuwari-text-50">
+                  {m.search_no_results_with_query({ query })}
+                </p>
               </div>
-              <h3 className="text-lg font-bold fuwari-text-75 mb-2">
-                {m.search_no_results()}
-              </h3>
-              <p className="text-sm fuwari-text-50">
-                {m.search_no_results_with_query({ query })}
-              </p>
-            </div>
-          )}
+            )}
 
           {/* Result cards with staggered entrance */}
           {searchResults.map((result: SearchResultItem, index: number) => (

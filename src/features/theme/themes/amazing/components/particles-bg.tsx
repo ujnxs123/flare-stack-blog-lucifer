@@ -29,9 +29,7 @@ export function ParticlesBg() {
     if (!ctx) return;
 
     // Respect reduced-motion
-    const motionQuery = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    );
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (motionQuery.matches) return;
 
     let w = 0;

@@ -19,9 +19,7 @@ export function PrivacyPage(_: PrivacyPageProps) {
       </header>
 
       <div className="space-y-12 text-base leading-relaxed">
-        <p className="text-muted-foreground">
-          {m.privacy_intro({ siteName })}
-        </p>
+        <p className="text-muted-foreground">{m.privacy_intro({ siteName })}</p>
 
         <section>
           <h2 className="text-2xl font-serif font-medium text-foreground mb-4">

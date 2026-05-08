@@ -1,10 +1,10 @@
 import { useRouteContext } from "@tanstack/react-router";
 import { Mail } from "lucide-react";
-import type { ContactPageProps } from "@/features/theme/contract/pages";
 import {
   resolveSocialHref,
   SOCIAL_PLATFORMS,
 } from "@/features/config/utils/social-platforms";
+import type { ContactPageProps } from "@/features/theme/contract/pages";
 import { m } from "@/paraglide/messages";
 
 export function ContactPage(_: ContactPageProps) {

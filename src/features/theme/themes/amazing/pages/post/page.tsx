@@ -79,7 +79,8 @@ export function PostPage({ post }: PostPageProps) {
               {m.read_time({ count: post.readTimeInMinutes })}
             </div>
           </div>
-          {(session?.user.role === "admin" || session?.user.role === "superadmin") && (
+          {(session?.user.role === "admin" ||
+            session?.user.role === "superadmin") && (
             <Link
               to="/admin/posts/edit/$id"
               params={{ id: String(post.id) }}

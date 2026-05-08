@@ -69,7 +69,6 @@ export function SideBar({
     navigate({ to: "/login" });
   };
 
-
   const allNavItems: Array<NavItem> = [
     {
       path: "/admin",
@@ -120,7 +119,8 @@ export function SideBar({
   ];
 
   const navItems = allNavItems.filter(
-    (item) => !item.roles || item.roles.includes(user?.role as "admin" | "superadmin"),
+    (item) =>
+      !item.roles || item.roles.includes(user?.role as "admin" | "superadmin"),
   );
 
   return (

@@ -42,7 +42,8 @@ export function FriendCard({ link, className, style }: FriendCardProps) {
   const handleMouseLeave = useCallback(() => {
     const card = cardRef.current;
     if (!card) return;
-    card.style.transform = "perspective(800px) rotateX(0) rotateY(0) translateZ(0)";
+    card.style.transform =
+      "perspective(800px) rotateX(0) rotateY(0) translateZ(0)";
   }, []);
 
   return (

@@ -1,9 +1,11 @@
 import * as ConfigService from "@/features/config/service/config.service";
 import {
+  getPublishedAuthorNames,
   getPublishedPostsForSitemapBatch,
   type SitemapPostRow,
 } from "@/features/posts/data/posts.data";
 import { buildFeed } from "@/features/posts/utils/feed";
+import { getAllTagsWithCount } from "@/features/tags/data/tags.data";
 import { getDb } from "@/lib/db";
 
 export const SITE_DOCUMENT_CACHE_CONTROL = {
@@ -95,6 +97,14 @@ async function getAllPublishedPostsForSitemap(env: Env) {
 export async function buildSitemapXml(env: Env) {
   const posts = await getAllPublishedPostsForSitemap(env);
 
+  const db = getDb(env);
+
+  // Fetch tags and authors for sitemap
+  const [tags, authorNames] = await Promise.all([
+    getAllTagsWithCount(db, { publicOnly: true }).catch(() => []),
+    getPublishedAuthorNames(db).catch(() => []),
+  ]);
+
   const formatDate = (
     primaryDate: Date | null,
     fallbacks: Array<Date | null> = [],
@@ -141,6 +151,26 @@ export async function buildSitemapXml(env: Env) {
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+  ${tags
+    .map(
+      (tag) => `
+  <url>
+    <loc>https://${env.DOMAIN}/tags/${encodeURIComponent(tag.name)}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>`,
+    )
+    .join("")}
+  ${authorNames
+    .map(
+      (name) => `
+  <url>
+    <loc>https://${env.DOMAIN}/author/${encodeURIComponent(name)}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>`,
+    )
+    .join("")}
   ${posts
     .map((post) => {
       const lastModifiedAt = formatDate(post.updatedAt, [

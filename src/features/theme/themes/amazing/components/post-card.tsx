@@ -78,7 +78,8 @@ export function PostCard({
           : "hover:shadow-xl"
       }`}
       style={{
-        transition: "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s",
+        transition:
+          "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s",
       }}
     >
       {pinned && (
@@ -101,10 +102,7 @@ export function PostCard({
               </>
             ) : (
               <>
-                <Flame
-                  size={16}
-                  className="text-orange-500 animate-pulse"
-                />
+                <Flame size={16} className="text-orange-500 animate-pulse" />
                 <span className="text-orange-500">
                   {m.home_popular_posts()}
                 </span>
@@ -137,7 +135,9 @@ export function PostCard({
               dateTime={post.publishedAt?.toISOString()}
               className="text-sm font-medium"
             >
-              <ClientOnly fallback="-">{formatDate(post.publishedAt)}</ClientOnly>
+              <ClientOnly fallback="-">
+                {formatDate(post.publishedAt)}
+              </ClientOnly>
             </time>
           </div>
           {tagNames.length > 0 && (
