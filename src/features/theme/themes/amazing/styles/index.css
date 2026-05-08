@@ -440,3 +440,71 @@
 .dark ::-webkit-scrollbar-thumb:active {
   background-color: rgba(255, 255, 255, 0.6);
 }
+
+/* ============================================
+   Mobile & Performance Optimization
+   ============================================ */
+
+/* System font stack — no network requests, instant rendering */
+:root {
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-serif: "Georgia", "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", "Consolas",
+    "Monaco", "Courier New", monospace;
+}
+
+/* Font rendering optimization */
+body {
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Article body: prevent iOS auto-zoom on input focus */
+@media screen and (max-width: 640px) {
+  .fuwari-custom-md {
+    font-size: 16px;
+  }
+}
+
+/* Minimum touch target size (WCAG 2.5.5) */
+@media (pointer: coarse) {
+  a, button, [role="button"], input:not([type="range"]), select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Horizontal overflow prevention */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Table responsive — horizontal scroll on mobile */
+.fuwari-custom-md table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* Ad slot reserved space — prevent CLS */
+.ad-slot {
+  contain: layout style;
+  overflow: hidden;
+}
+
+/* Reduced motion: disable animations */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

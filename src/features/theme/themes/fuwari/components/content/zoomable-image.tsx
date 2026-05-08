@@ -191,6 +191,8 @@ export default function ZoomableImage({
     setIsOpen(true);
   };
 
+  const aspectRatio = width && height ? `${width} / ${height}` : undefined;
+
   return (
     <>
       <div
@@ -204,6 +206,8 @@ export default function ZoomableImage({
           width={width}
           height={height}
           loading="lazy"
+          decoding="async"
+          style={{ aspectRatio }}
           className={cn(
             "w-full h-auto block transition-all duration-500 will-change-transform m-0 p-0",
             className,

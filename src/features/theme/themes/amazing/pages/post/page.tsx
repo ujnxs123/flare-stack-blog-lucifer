@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, FileText, Pencil } from "lucide-react";
 import { Suspense } from "react";
+import { AdSlot } from "@/components/common/ad-slot";
 import type { PostPageProps } from "@/features/theme/contract/pages";
 import { FuwariCommentSection } from "@/features/theme/themes/amazing/components/comments/view/comment-section";
 import { ContentRenderer } from "@/features/theme/themes/fuwari/components/content/content-renderer";
@@ -167,6 +168,25 @@ export function PostPage({ post }: PostPageProps) {
         <Suspense fallback={<RelatedPostsSkeleton />}>
           <RelatedPosts slug={post.slug} />
         </Suspense>
+      </div>
+
+      {/* Ad Slot — End of Article */}
+      <div
+        className="fuwari-onload-animation"
+        style={{
+          animationDelay: "400ms",
+          animationName: "amazing-fade-up",
+          animationDuration: "600ms",
+          animationTimingFunction: "var(--amazing-spring)",
+        }}
+      >
+        <AdSlot
+          placementId="post-footer"
+          format="horizontal"
+          width={728}
+          height={90}
+          dismissDays={7}
+        />
       </div>
 
       {/* Comments Section */}
