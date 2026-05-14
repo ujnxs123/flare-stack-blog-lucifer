@@ -191,10 +191,16 @@ export default function ZoomableImage({
     setIsOpen(true);
   };
 
+  // Detect portrait/vertical images (height > width)
+  const isPortrait = width && height && height > width;
+
   return (
     <>
       <div
-        className="w-full h-auto cursor-zoom-in group select-none overflow-hidden m-0 p-0 rounded-xl"
+        className={cn(
+          "h-auto cursor-zoom-in group select-none overflow-hidden m-0 p-0 rounded-xl",
+          "w-full",
+        )}
         onClick={handleOpen}
       >
         <img
@@ -205,7 +211,10 @@ export default function ZoomableImage({
           height={height}
           loading="lazy"
           className={cn(
-            "w-full h-auto block transition-all duration-500 will-change-transform m-0 p-0",
+            "block transition-all duration-500 will-change-transform m-0 p-0",
+            isPortrait
+              ? "w-auto h-auto max-h-[70vh] max-w-full object-contain mx-auto"
+              : "w-full h-auto",
             className,
           )}
           {...props}

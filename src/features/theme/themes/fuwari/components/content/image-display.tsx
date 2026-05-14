@@ -11,10 +11,12 @@ export function ImageDisplay({
   width?: number;
   height?: number;
 }) {
+  const isPortrait = width && height && height > width;
+
   return (
-    <figure className="not-prose my-8 group relative block fuwari-onload-animation select-none overflow-hidden rounded-xl">
+    <figure className="not-prose my-8 group relative flex flex-col items-center fuwari-onload-animation select-none overflow-hidden rounded-xl">
       {/* Image Container with Fuwari aesthetics */}
-      <div className="relative">
+      <div className="relative w-full">
         {/* Dark mode overlay to reduce glow - matching original Fuwari */}
         <div className="absolute inset-0 pointer-events-none z-10 bg-transparent dark:bg-black/10 transition-colors duration-300 rounded-xl" />
 
@@ -23,7 +25,11 @@ export function ImageDisplay({
           alt={alt}
           width={width}
           height={height}
-          className="w-full h-auto transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] scale-100 group-hover:scale-[1.01]"
+          className={
+            isPortrait
+              ? "transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] scale-100 group-hover:scale-[1.01]"
+              : "w-full h-auto transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] scale-100 group-hover:scale-[1.01]"
+          }
         />
       </div>
 
