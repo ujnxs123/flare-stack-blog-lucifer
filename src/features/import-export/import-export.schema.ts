@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { POST_STATUSES } from "@/lib/db/schema";
 
-export const ImportExportLocaleSchema = z.enum(["zh", "zh-Hant", "en"]);
+export const ImportExportLocaleSchema = z.enum(["zh", "en"]);
 
 // --- Export ---
 

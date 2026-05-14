@@ -9,9 +9,7 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
 
   const currentLocale = getLocale();
 
-  type Locale = "zh" | "zh-Hant" | "en";
-
-  const handleLanguageChange = (locale: Locale) => {
+  const handleLanguageChange = (locale: "zh" | "en") => {
     setLocale(locale);
   };
 
@@ -51,7 +49,7 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-36 bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 z-50 py-1 animate-in fade-in zoom-in-95 duration-200 rounded-xl shadow-lg overflow-hidden">
+        <div className="absolute top-full right-0 mt-2 w-32 bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 z-50 py-1 animate-in fade-in zoom-in-95 duration-200 rounded-xl shadow-lg overflow-hidden">
           <button
             onClick={() => handleLanguageChange("zh")}
             className={`w-full text-left px-4 py-2 text-sm transition-colors ${
@@ -60,17 +58,7 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
                 : "text-black/70 hover:text-black dark:text-white/70 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
             }`}
           >
-            简体中文
-          </button>
-          <button
-            onClick={() => handleLanguageChange("zh-Hant")}
-            className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-              currentLocale === "zh-Hant"
-                ? "text-(--fuwari-primary) bg-black/5 dark:bg-white/5 font-bold"
-                : "text-black/70 hover:text-black dark:text-white/70 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
-            }`}
-          >
-            繁體中文
+            中文
           </button>
           <button
             onClick={() => handleLanguageChange("en")}
