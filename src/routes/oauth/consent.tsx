@@ -53,7 +53,7 @@ export const Route = createFileRoute("/oauth/consent")({
       });
     }
 
-    if (session.user.role !== "admin") {
+    if (session.user.role !== "superadmin") {
       throw redirect({ to: "/" });
     }
 
