@@ -29,11 +29,11 @@ export function PostPage({ post }: PostPageProps) {
 
   return (
     <div className="relative flex flex-col rounded-(--fuwari-radius-large) py-1 md:py-0 md:bg-transparent gap-4 mb-4 w-full">
-      {/* Table Of Contents (Desktop Floating Right) */}
+      {/* Table Of Contents (Desktop Fixed Right) */}
       <div
-        className="hidden 2xl:block absolute top-0 h-full pl-4"
+        className="hidden 2xl:block fixed top-16 pl-4 z-30"
         style={{
-          right: "calc(var(--fuwari-toc-width) * -1)",
+          right: "calc((100vw - var(--fuwari-page-width)) / 2 - var(--fuwari-toc-width))",
           width: "var(--fuwari-toc-width)",
         }}
       >
