@@ -40,7 +40,7 @@ Deeply integrated with D1, R2, KV, Workflows, and other Serverless services.
 - **Full-Text Search** — High-performance search powered by Orama.
 - **Media Library** — R2 object storage for image management and optimization.
 - **Authentication** — GitHub OAuth login with role-based access control.
-- **MCP Server** — Connect AI clients through OAuth to manage posts, comments, tags, friend links, media, and analytics.
+- **MCP Server** — Connect AI clients through OAuth to manage posts, comments, tags, friend links, media (including image upload), and analytics.
 - **Analytics** — Umami integration for visitor metrics and top posts.
 - **SEO Enhancements** — Canonical URLs, Schema.org structured data, RSS, Sitemap, and Robots support.
 - **AI Integration** — Cloudflare Workers AI integration.
