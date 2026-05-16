@@ -63,3 +63,30 @@ export const McpMediaDeleteOutputSchema = z.object({
   deleted: z.literal(true).describe("Whether the media item was deleted."),
   key: z.string().describe("Stable media storage key."),
 });
+
+export const McpMediaUploadInputSchema = z.object({
+  base64Data: z
+    .string()
+    .min(1)
+    .describe("Base64-encoded image file content."),
+  fileName: z
+    .string()
+    .min(1)
+    .describe(
+      "Original file name including extension (e.g. photo.png). Used to determine MIME type.",
+    ),
+});
+
+export const McpMediaUploadOutputSchema = z.object({
+  id: z.number().describe("Numeric media ID."),
+  key: z.string().describe("Stable media storage key."),
+  url: z.string().describe("Relative URL to access the uploaded image."),
+  fileName: z.string().describe("Stored file name."),
+  mimeType: z.string().describe("Media MIME type."),
+  sizeInBytes: z.number().describe("File size in bytes."),
+  width: z.number().nullable().describe("Image width in pixels, if detected."),
+  height: z
+    .number()
+    .nullable()
+    .describe("Image height in pixels, if detected."),
+});
