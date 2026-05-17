@@ -32,6 +32,75 @@ function deriveFileName(url: string): string {
 }
 
 /**
+/**
+ * Decompress a pako-encoded mermaid.ink URL and return the fixed URL.
+ * mermaid.ink no longer supports the pako: compressed format that some
+ * MCP clients generate. This function decompresses the payload and
+ * re-encodes it as plain base64 which mermaid.ink accepts.
+ * Returns null if the URL is not a pako mermaid URL or decompression fails.
+ */
+async function decompressMermaidPakoUrl(url: string): Promise<string | null> {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== "mermaid.ink") return null;
+
+    const pathname = parsed.pathname;
+    const pakoMatch = pathname.match(/^\/(img|svg)\/pako:(.+)$/);
+    if (!pakoMatch) return null;
+
+    const [, format, pakoData] = pakoMatch;
+
+    // Convert base64url to standard base64
+    let base64 = pakoData.replace(/-/g, "+").replace(/_/g, "/");
+    // Add padding if needed
+    while (base64.length % 4 !== 0) {
+      base64 += "=";
+    }
+
+    const binaryStr = atob(base64);
+    const compressedBytes = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) {
+      compressedBytes[i] = binaryStr.charCodeAt(i);
+    }
+
+    // Decompress using DecompressionStream with "deflate" format
+    // (pako default uses zlib-wrapped deflate)
+    const ds = new DecompressionStream("deflate");
+    const writer = ds.writable.getWriter();
+    const reader = ds.readable.getReader();
+
+    writer.write(compressedBytes);
+    writer.close();
+
+    const chunks: Uint8Array[] = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+
+    // Combine chunks
+    const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+    const decompressed = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const chunk of chunks) {
+      decompressed.set(chunk, offset);
+      offset += chunk.length;
+    }
+
+    // The decompressed data is the mermaid diagram text
+    const mermaidText = new TextDecoder().decode(decompressed);
+
+    // Re-encode as standard base64 for the working mermaid.ink format
+    const newBase64 = btoa(mermaidText);
+
+    return `https://mermaid.ink/${format}/${newBase64}`;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Determine MIME type from Content-Type header or file extension.
  */
 function resolveMimeType(
@@ -54,6 +123,7 @@ function resolveMimeType(
     png: "image/png",
     webp: "image/webp",
     gif: "image/gif",
+    svg: "image/svg+xml",
   };
   const fromExt = extMap[ext || ""];
   if (fromExt && ACCEPTED_IMAGE_TYPES.includes(fromExt)) {
@@ -71,13 +141,25 @@ export const mediaUploadFromUrlTool = defineMcpTool({
   inputSchema: McpMediaUploadFromUrlInputSchema,
   outputSchema: McpMediaUploadFromUrlOutputSchema,
   async handler(args, context) {
-    const { url, fileName: userFileName } = args;
+    let { url, fileName: userFileName } = args;
+
+    // Auto-fix mermaid.ink pako URLs (deprecated format that returns 400)
+    const fixedMermaidUrl = await decompressMermaidPakoUrl(url);
+    if (fixedMermaidUrl) {
+      url = fixedMermaidUrl;
+    }
 
     // Fetch the image from the remote URL
+    // Use browser-like headers to avoid bot detection on some hosts
     let response: Response;
     try {
       response = await fetch(url, {
-        headers: { "User-Agent": "BlogMCP-MediaFetcher/1.0" },
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+          Accept: "image/avif,image/webp,image/png,image/jpeg,image/*,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.9",
+        },
         redirect: "follow",
       });
     } catch (e) {
