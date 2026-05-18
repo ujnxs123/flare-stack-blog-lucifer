@@ -42,7 +42,7 @@
 - **全文搜索** — 基于 Orama 的高性能搜索
 - **媒体库** — R2 对象存储，图片管理与优化
 - **用户认证** — GitHub OAuth 登录，权限控制
-- **MCP Server** — 支持通过 OAuth 连接 AI 客户端，进行文章、评论、标签、友链、媒体与统计管理
+- **MCP Server** — 支持通过 OAuth 连接 AI 客户端，进行文章、评论、标签、友链、媒体（含图片上传）与统计管理
 - **数据统计** — Umami 集成，访问分析与热门文章
 - **SEO 增强** — Canonical URL、Schema.org 结构化数据、RSS / Sitemap / Robots
 - **AI 辅助** — Cloudflare Workers AI 集成

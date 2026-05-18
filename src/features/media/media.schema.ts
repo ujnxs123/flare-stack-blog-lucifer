@@ -8,6 +8,7 @@ export const ACCEPTED_IMAGE_TYPES = [
   "image/png",
   "image/webp",
   "image/gif",
+  "image/svg+xml",
 ];
 
 export const UploadMediaInputSchema = z.instanceof(FormData);

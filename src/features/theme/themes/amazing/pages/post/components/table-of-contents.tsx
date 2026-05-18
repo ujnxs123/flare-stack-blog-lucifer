@@ -1,4 +1,3 @@
-import { useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { TableOfContentsItem } from "@/features/posts/utils/toc";
 import { cn } from "@/lib/utils";
@@ -15,7 +14,6 @@ export default function TableOfContents({
   const navRef = useRef<HTMLElement>(null);
   const tocRootRef = useRef<HTMLDivElement>(null);
   const linksContainerRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
 
   // For the active indicator backdrop
   const [indicatorStyle, setIndicatorStyle] = useState<{
@@ -34,8 +32,8 @@ export default function TableOfContents({
     return min;
   }, [headers]);
 
-  // Max depth visible in TOC from config
-  const maxLevel = 3;
+  // Max depth visible in TOC: only H2 + H3
+  const maxLevel = 2;
 
   const removeTailingHash = (text: string) => {
     const lastIndexOfHash = text.lastIndexOf("#");
@@ -207,13 +205,11 @@ export default function TableOfContents({
 
   if (headers.length === 0) return null;
 
-  let h1Count = 1;
-
   return (
     <nav
       ref={navRef}
       className={cn(
-        "sticky top-14 self-start block w-full transition-all duration-500",
+        "block w-full transition-all duration-500",
         isVisible && isReady
           ? "opacity-100 translate-y-0"
           : "opacity-0 translate-y-4 pointer-events-none",
@@ -221,11 +217,12 @@ export default function TableOfContents({
     >
       <div
         ref={tocRootRef}
-        className="relative toc-root overflow-y-scroll overflow-x-hidden fuwari-toc-scrollbar h-[calc(100vh-20rem)]"
+        className="relative toc-root overflow-y-auto overflow-x-hidden fuwari-toc-scrollbar"
         style={{
+          height: "360px",
           scrollBehavior: "smooth",
           maskImage:
-            "linear-gradient(to bottom, transparent 0%, black 2rem, black calc(100% - 2rem), transparent 100%)",
+            "linear-gradient(to bottom, transparent 0%, black 1.5rem, black calc(100% - 1.5rem), transparent 100%)",
         }}
       >
         <div className="h-8 w-full" />
@@ -237,9 +234,8 @@ export default function TableOfContents({
             .filter((heading) => heading.level < minDepth + maxLevel)
             .map((heading) => {
               const text = removeTailingHash(heading.text);
-              const isH1 = heading.level === minDepth;
-              const isH2 = heading.level === minDepth + 1;
-              const isH3 = heading.level === minDepth + 2;
+              const isTop = heading.level === minDepth;
+              const isSub = heading.level === minDepth + 1;
 
               return (
                 <a
@@ -252,43 +248,40 @@ export default function TableOfContents({
                       const top =
                         element.getBoundingClientRect().top +
                         window.scrollY -
-                        80;
+                        88;
                       window.scrollTo({ top, behavior: "smooth" });
-                      navigate({
-                        hash: heading.id,
-                        replace: true,
-                      });
+                      // Use replaceState instead of navigate() to update the URL hash
+                      // without triggering a router navigation event (which causes a flash)
+                      history.replaceState(null, "", `#${heading.id}`);
                     }
                   }}
                   className={cn(
-                    "px-2 flex gap-2 relative transition w-full min-h-9 rounded-xl py-2 z-10",
+                    "px-2 flex gap-2 relative transition w-full min-h-7 rounded-lg py-1 z-10",
                     "hover:bg-(--fuwari-toc-btn-hover) active:bg-(--fuwari-toc-btn-active)",
                   )}
                 >
                   <div
                     className={cn(
-                      "transition w-5 h-5 shrink-0 rounded-lg text-xs flex items-center justify-center font-bold",
+                      "transition w-4 h-4 shrink-0 rounded-md text-[10px] flex items-center justify-center font-bold",
                       {
                         "bg-[oklch(0.89_0.050_var(--fuwari-hue))] dark:bg-(--fuwari-btn-regular-bg) text-(--fuwari-btn-content)":
-                          isH1,
-                        "ml-4": isH2,
-                        "ml-8": isH3,
+                          isTop,
+                        "ml-3": isSub,
                       },
                     )}
                   >
-                    {isH1 && h1Count++}
-                    {isH2 && (
-                      <div className="transition w-2 h-2 rounded-[0.1875rem] bg-[oklch(0.89_0.050_var(--fuwari-hue))] dark:bg-(--fuwari-btn-regular-bg)"></div>
+                    {isTop && (
+                      <div className="transition w-1.5 h-1.5 rounded-sm bg-[oklch(0.89_0.050_var(--fuwari-hue))] dark:bg-(--fuwari-btn-regular-bg)"></div>
                     )}
-                    {isH3 && (
-                      <div className="transition w-1.5 h-1.5 rounded-sm bg-black/5 dark:bg-white/10"></div>
+                    {isSub && (
+                      <div className="transition w-1 h-1 rounded-sm bg-black/10 dark:bg-white/20"></div>
                     )}
                   </div>
 
                   <div
-                    className={cn("transition text-sm", {
-                      "fuwari-text-50": isH1 || isH2,
-                      "fuwari-text-30": isH3,
+                    className={cn("transition text-sm leading-relaxed", {
+                      "fuwari-text-50": isTop,
+                      "fuwari-text-30": isSub,
                     })}
                   >
                     {text}
@@ -301,7 +294,7 @@ export default function TableOfContents({
           {headers.length > 0 && (
             <div
               className={cn(
-                "absolute left-0 right-0 rounded-xl transition-all duration-300 ease-out -z-10 border-2 border-dashed pointer-events-none",
+                "absolute left-0 right-0 rounded-lg transition-all duration-300 ease-out -z-10 border border-dashed pointer-events-none",
                 "bg-(--fuwari-toc-btn-hover) border-(--fuwari-toc-btn-hover) group-hover:bg-transparent group-hover:border-(--fuwari-toc-btn-active)",
               )}
               style={{

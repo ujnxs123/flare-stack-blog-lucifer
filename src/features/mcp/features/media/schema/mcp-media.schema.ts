@@ -63,3 +63,60 @@ export const McpMediaDeleteOutputSchema = z.object({
   deleted: z.literal(true).describe("Whether the media item was deleted."),
   key: z.string().describe("Stable media storage key."),
 });
+
+export const McpMediaUploadInputSchema = z.object({
+  base64Data: z
+    .string()
+    .min(1)
+    .describe("Base64-encoded image file content."),
+  fileName: z
+    .string()
+    .min(1)
+    .describe(
+      "Original file name including extension (e.g. photo.png). Used to determine MIME type.",
+    ),
+});
+
+export const McpMediaUploadOutputSchema = z.object({
+  id: z.number().describe("Numeric media ID."),
+  key: z.string().describe("Stable media storage key."),
+  url: z.string().describe("Relative URL to access the uploaded image."),
+  fileName: z.string().describe("Stored file name."),
+  mimeType: z.string().describe("Media MIME type."),
+  sizeInBytes: z.number().describe("File size in bytes."),
+  width: z.number().nullable().describe("Image width in pixels, if detected."),
+  height: z
+    .number()
+    .nullable()
+    .describe("Image height in pixels, if detected."),
+});
+
+export const McpMediaUploadFromUrlInputSchema = z.object({
+  url: z
+    .string()
+    .url()
+    .describe(
+      "Public URL of the image to download and store. Must be directly accessible (no auth required).",
+    ),
+  fileName: z
+    .string()
+    .min(1)
+    .optional()
+    .describe(
+      "Optional file name to use for storage. If omitted, derived from the URL or a generated UUID.",
+    ),
+});
+
+export const McpMediaUploadFromUrlOutputSchema = z.object({
+  id: z.number().describe("Numeric media ID."),
+  key: z.string().describe("Stable media storage key."),
+  url: z.string().describe("Relative URL to access the uploaded image."),
+  fileName: z.string().describe("Stored file name."),
+  mimeType: z.string().describe("Media MIME type."),
+  sizeInBytes: z.number().describe("File size in bytes."),
+  width: z.number().nullable().describe("Image width in pixels, if detected."),
+  height: z
+    .number()
+    .nullable()
+    .describe("Image height in pixels, if detected."),
+});
